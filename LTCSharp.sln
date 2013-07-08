@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LTCSharp", "LTCSharp\LTCSharp.vcxproj", "{6625FC6E-AC51-4276-9D95-57AB78E21B03}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libltc", "libltc\libltc.vcxproj", "{1888F07F-1021-46B9-9025-3AAA4EBF0A24}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6625FC6E-AC51-4276-9D95-57AB78E21B03}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6625FC6E-AC51-4276-9D95-57AB78E21B03}.Debug|Win32.Build.0 = Debug|Win32
+		{6625FC6E-AC51-4276-9D95-57AB78E21B03}.Release|Win32.ActiveCfg = Release|Win32
+		{6625FC6E-AC51-4276-9D95-57AB78E21B03}.Release|Win32.Build.0 = Release|Win32
+		{1888F07F-1021-46B9-9025-3AAA4EBF0A24}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1888F07F-1021-46B9-9025-3AAA4EBF0A24}.Debug|Win32.Build.0 = Debug|Win32
+		{1888F07F-1021-46B9-9025-3AAA4EBF0A24}.Release|Win32.ActiveCfg = Release|Win32
+		{1888F07F-1021-46B9-9025-3AAA4EBF0A24}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
