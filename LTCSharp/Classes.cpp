@@ -1,9 +1,77 @@
 // This is the main DLL file.
 
 #include "Classes.h"
+#include <iostream>
+#include <sstream>
 
 namespace LTCSharp
 {
+#pragma mark Timecode
+	//----------
+	Timecode::Timecode() {
+		this->instance = new SMPTETimecode();
+	}
+
+	//----------
+	Timecode::Timecode(String ^ timezone, int years, int months, int days, int hours, int minutes, int seconds, int frame) {
+		this->instance = new SMPTETimecode();
+
+		char* str2 = (char*)(void*)Marshal::StringToHGlobalAnsi(timezone);
+		sprintf(this->instance->timezone, "%s", str2);
+		Marshal::FreeHGlobal( (IntPtr) str2);
+				
+		this->instance->years = years;
+		this->instance->months = months;
+		this->instance->days = days;
+		
+		this->instance->hours = hours;
+		this->instance->mins = minutes;
+		this->instance->secs = seconds;
+
+		this->instance->frame = frame;
+	}
+
+	//----------
+	Timecode::Timecode(int hours, int minutes, int seconds, int frame) {
+		this->instance = new SMPTETimecode();
+
+		strcpy(this->instance->timezone, "+0000");
+				
+		this->instance->years = 0;
+		this->instance->months = 0;
+		this->instance->days = 0;
+		
+		this->instance->hours = hours;
+		this->instance->mins = minutes;
+		this->instance->secs = seconds;
+
+		this->instance->frame = frame;
+	}
+
+	//----------
+	Timecode::~Timecode() {
+		delete this->instance;
+	}
+
+	//----------
+	String^ Timecode::ToString() {
+		std::stringstream output;
+		output << this->getInstance()->timezone << " ";
+		output << this->Years << "-" << this->Months << "-" << this->Days << " ";
+		output << this->Hours << ":" << this->Minutes << ":" << this->Seconds;
+		return gcnew String(output.str().c_str());
+	}
+	
+	//----------
+	String^ Timecode::ToString(String^ format) {
+		return this->ToString();
+	}
+	
+	//----------
+	String^ Timecode::ToString(String^ format, IFormatProvider^ provider) {
+		return this->ToString();
+	}
+
 #pragma mark Frame
 	//----------
 	Frame::Frame() {
@@ -15,18 +83,14 @@ namespace LTCSharp
 		delete(this->instance);
 	}
 
-#pragma mark Timecode
 	//----------
-	Timecode::Timecode() {
-		this->instance = new SMPTETimecode();
+	Timecode^ Frame::getTimecode() {
+		Timecode^ timecode = gcnew Timecode();
+		ltc_frame_to_time(timecode->getInstance(), & this->getInstance()->ltc, LTC_USE_DATE);
+		return timecode;
 	}
 
-	//----------
-	Timecode::~Timecode() {
-		delete this->instance;
-	}
-
-#pragma mark Timecode
+#pragma mark Utils
 	//----------
 	LTC_TV_STANDARD Utils::toNative(TVStandard standard) {
 		switch(standard) {
@@ -73,7 +137,7 @@ namespace LTCSharp
 	}
 
 	//----------
-	void Decoder::write(IntPtr buffer, TypeCode type, int size, int offset) {
+	void Decoder::Write(IntPtr buffer, TypeCode type, int size, int offset) {
 		switch(type)
 		{
 		case System::TypeCode::Byte:
@@ -95,45 +159,66 @@ namespace LTCSharp
 	}
 	
 	//----------
-	void Decoder::write(array<System::Byte>^ buffer, int offset) {
+	void Decoder::Write(array<System::Byte>^ buffer, int count, int offset) {
 		pin_ptr<System::Byte> pinned = &buffer[0];
 		unsigned char* pointer = pinned;
-		ltc_decoder_write(this->instance, pointer, buffer->Length, offset);
+		ltc_decoder_write(this->instance, pointer, count, offset);
 	}
 	
 	//----------
-	void Decoder::write(array<short>^ buffer, int offset) {
+	void Decoder::Write(array<short>^ buffer, int count, int offset) {
 		pin_ptr<short> pinned = &buffer[0];
 		short* pointer = pinned;
-		ltc_decoder_write_s16(this->instance, pointer, buffer->Length, offset);
+		ltc_decoder_write_s16(this->instance, pointer, count, offset);
 	}
 	
 	//----------
-	void Decoder::write(array<unsigned short>^ buffer, int offset) {
+	void Decoder::Write(array<unsigned short>^ buffer, int count, int offset) {
 		pin_ptr<unsigned short> pinned = &buffer[0];
 		unsigned short* pointer = pinned;
-		ltc_decoder_write_u16(this->instance, pointer, buffer->Length, offset);
+		ltc_decoder_write_u16(this->instance, pointer, count, offset);
 	}
 
 	//----------
-	void Decoder::write(array<float>^ buffer, int offset) {
+	void Decoder::Write(array<float>^ buffer, int count, int offset) {
 		pin_ptr<float> pinned = &buffer[0];
 		float* pointer = pinned;
-		ltc_decoder_write_float(this->instance, pointer, buffer->Length, offset);
+		ltc_decoder_write_float(this->instance, pointer, count, offset);
+	}
+	
+	//----------
+	void Decoder::WriteAsU16(array<System::Byte>^ buffer, int count, int offset) {
+		pin_ptr<System::Byte> pinned = &buffer[0];
+		unsigned short* pointer = (unsigned short*) pinned;
+		ltc_decoder_write_u16(this->instance, pointer, count, offset);
+	}
+	
+	//----------
+	void Decoder::WriteAsS16(array<System::Byte>^ buffer, int count, int offset) {
+		pin_ptr<System::Byte> pinned = &buffer[0];
+		short* pointer = (short*) pinned;
+		ltc_decoder_write_s16(this->instance, pointer, count, offset);
 	}
 
 	//----------
-	void Decoder::flushQueue() {
+	void Decoder::WriteAsFloat(array<System::Byte>^ buffer, int count, int offset) {
+		pin_ptr<System::Byte> pinned = &buffer[0];
+		float* pointer = (float*) pinned;
+		ltc_decoder_write_float(this->instance, pointer, count, offset);
+	}
+
+	//----------
+	void Decoder::FlushQueue() {
 		ltc_decoder_queue_flush(this->instance);
 	}
 
 	//----------
-	int Decoder::getQueueLength() {
+	int Decoder::GetQueueLength() {
 		return ltc_decoder_queue_length(this->instance);
 	}
 
 	//----------
-	Frame^ Decoder::read() {
+	Frame^ Decoder::Read() {
 		Frame^ frame = gcnew Frame();
 		if (ltc_decoder_read(this->instance, frame->getInstance())) {
 			return frame;
@@ -152,7 +237,7 @@ namespace LTCSharp
 
 	//----------
 	Encoder::~Encoder() {
-		delete(this->instance);
+		ltc_encoder_free(this->instance);
 	}
 
 	//----------

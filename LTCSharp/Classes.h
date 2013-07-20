@@ -4,6 +4,7 @@
 #include "ltc.h"
  
 using namespace System;
+using namespace System::Runtime::InteropServices;
 
 namespace LTCSharp {
 
@@ -17,19 +18,36 @@ namespace LTCSharp {
 
 	public enum class BGFlags
 	{
+		NONE,
 		USE_DATE,
 		TC_CLOCK,
 		BGF_DONT_TOUCH,
 		NO_PARITY
 	};
 
-	public ref class Timecode
+	public ref class Timecode : public IFormattable
 	{
 	public:
 		Timecode();
+		Timecode(String ^ timezone, int years, int months, int days, int hours, int minutes, int seconds, int frame);
+		Timecode(int hours, int minutes, int seconds, int frame);
+
 		~Timecode();
 
 		SMPTETimecode * getInstance() { return this->instance; };
+		
+		property int Years { int get() { return this->getInstance()->years; } }
+		property int Months { int get() { return this->getInstance()->months; } }
+		property int Days { int get() { return this->getInstance()->days; } }
+		property int Hours { int get() { return this->getInstance()->hours; } }
+		property int Minutes { int get() { return this->getInstance()->mins; } }
+		property int Seconds { int get() { return this->getInstance()->secs; } }
+		property int Frame { int get() { return this->getInstance()->frame; } }
+
+		virtual String^ ToString() override;
+		virtual String^ ToString(String^ format) override;
+		virtual String^ ToString(String^ format, IFormatProvider^ provider) override;
+
 	protected:
 		SMPTETimecode * instance;
 	};
@@ -39,6 +57,8 @@ namespace LTCSharp {
 	public:
 		Frame();
 		~Frame();
+
+		Timecode^ getTimecode();
 
 		LTCFrameExt * getInstance() { return this->instance; }
 	protected:
@@ -56,15 +76,19 @@ namespace LTCSharp {
 		Decoder(int approxAudioSampleRate, int approxFrameRate, int queueSize);
 		~Decoder();
 
-		void write(IntPtr buffer, TypeCode type, int size, int offset);
-		void write(array<System::Byte>^ buffer, int offset); 
-		void write(array<short>^ buffer, int offset);
-		void write(array<unsigned short>^ buffer, int offset);
-		void write(array<float>^ buffer, int offset);
+		void Write(IntPtr buffer, TypeCode type, int size, int offset);
+		void Write(array<System::Byte>^ buffer, int count, int offset); 
+		void Write(array<short>^ buffer, int count, int offset);
+		void Write(array<unsigned short>^ buffer, int count, int offset);
+		void Write(array<float>^ buffer, int count, int offset);
 
-		void flushQueue();
-		int getQueueLength();
-		Frame^ read();
+		void WriteAsU16(array<System::Byte>^ buffer, int count, int offset);
+		void WriteAsS16(array<System::Byte>^ buffer, int count, int offset);
+		void WriteAsFloat(array<System::Byte>^ buffer, int count, int offset);
+
+		void FlushQueue();
+		int GetQueueLength();
+		Frame^ Read();
 
 	protected:
 		LTCDecoder * instance;
