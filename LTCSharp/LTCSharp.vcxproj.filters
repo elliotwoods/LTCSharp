@@ -13,15 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="libLtc">
-      <UniqueIdentifier>{f8aada82-40d4-45f1-ac4b-d9c58262675a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libLtc\headers">
-      <UniqueIdentifier>{b52bcea4-38b7-4773-ad88-d799644685bf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libLtc\source">
-      <UniqueIdentifier>{76615c9c-047b-42cb-b8c4-fca4d53db40a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Stdafx.h">
