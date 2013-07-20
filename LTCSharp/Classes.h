@@ -1,7 +1,8 @@
 // LTCSharp.h
 
 #pragma once
-
+#include "ltc.h"
+ 
 using namespace System;
 
 namespace LTCSharp {
@@ -44,6 +45,12 @@ namespace LTCSharp {
 		LTCFrameExt * instance;
 	};
 
+	public ref class Utils {
+	public:
+		static LTC_TV_STANDARD toNative(TVStandard standard);
+		static int toNative(BGFlags flags);
+	};
+
 	public ref class Decoder {
 	public:
 		Decoder(int approxAudioSampleRate, int approxFrameRate, int queueSize);
@@ -80,11 +87,10 @@ namespace LTCSharp {
 
 		int getBuffer(array<Byte>^ buffer, int offset);
 		IntPtr getBufferPointer();
-		unsigned int flushBuffer();
+		void flushBuffer();
 
 		void setBufferSize(double sampleRate, double fps);
 		void setVolume(double deciBelFullScale);
-		void setParity(TVStandard standard);
 
 		void encodeFrame();
 	protected:

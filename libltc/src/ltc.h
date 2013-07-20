@@ -36,14 +36,6 @@
 #ifndef LTC_H
 #define LTC_H 1
 
-#ifdef _MSC_VER
-	#include <limits>
-	#define INFINITY std::numeric_limits<double>::max();
-	float rint(float input) {
-		return floor(input + 0.5f);
-	}
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif

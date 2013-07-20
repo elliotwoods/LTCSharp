@@ -27,6 +27,17 @@
 #include "decoder.h"
 #include "encoder.h"
 
+#ifdef _MSC_VER
+	#include <limits>
+	#define INFINITY std::numeric_limits<double>::max();
+	#ifndef rint
+		float roundint(float input) {
+			return floor(input + 0.5f);
+		}
+	#define rint roundint
+	#endif
+#endif
+
 /* -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  * Decoder
  */

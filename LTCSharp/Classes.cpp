@@ -1,8 +1,6 @@
 // This is the main DLL file.
 
-#include "stdafx.h"
-
-#include "Decoder.h"
+#include "Classes.h"
 
 namespace LTCSharp
 {
@@ -26,6 +24,41 @@ namespace LTCSharp
 	//----------
 	Timecode::~Timecode() {
 		delete this->instance;
+	}
+
+#pragma mark Timecode
+	//----------
+	LTC_TV_STANDARD Utils::toNative(TVStandard standard) {
+		switch(standard) {
+		case TVStandard::TV525_60i:
+			return LTC_TV_525_60;
+			break;
+		case TVStandard::TV625_50i:
+			return LTC_TV_625_50;
+			break;
+		case TVStandard::TV1125_60i:
+			return LTC_TV_1125_60;
+			break;
+		case TVStandard::FILM24p:
+			return LTC_TV_FILM_24;
+			break;
+		}
+	}
+
+	//----------
+	int Utils::toNative(BGFlags flags) {
+		int flagsDecoded = 0;
+
+		if (flags.HasFlag(BGFlags::USE_DATE))
+			flagsDecoded |= LTC_USE_DATE;
+		if (flags.HasFlag(BGFlags::TC_CLOCK))
+			flagsDecoded |= LTC_TC_CLOCK;
+		if (flags.HasFlag(BGFlags::BGF_DONT_TOUCH))
+			flagsDecoded |= LTC_BGF_DONT_TOUCH;
+		if (flags.HasFlag(BGFlags::NO_PARITY))
+			flagsDecoded |= LTC_NO_PARITY;
+
+		return flagsDecoded;
 	}
 
 #pragma mark Decoder
@@ -112,32 +145,8 @@ namespace LTCSharp
 #pragma mark Encoder
 	//----------
 	Encoder::Encoder(double sampleRate, double fps, TVStandard standard, BGFlags flags) {
-		int flagsDecoded = 0;
-		if (flags.HasFlag(BGFlags::USE_DATE))
-			flagsDecoded |= LTC_USE_DATE;
-		if (flags.HasFlag(BGFlags::TC_CLOCK))
-			flagsDecoded |= LTC_TC_CLOCK;
-		if (flags.HasFlag(BGFlags::BGF_DONT_TOUCH))
-			flagsDecoded |= LTC_BGF_DONT_TOUCH;
-		if (flags.HasFlag(BGFlags::NO_PARITY))
-			flagsDecoded |= LTC_NO_PARITY;
-
-		LTC_TV_STANDARD standardDecoded;
-		switch(standard) {
-		case TVStandard::TV525_60i:
-			standardDecoded = LTC_TV_525_60;
-			break;
-		case TVStandard::TV625_50i:
-			standardDecoded = LTC_TV_625_50;
-			break;
-		case TVStandard::TV1125_60i:
-			standardDecoded = LTC_TV_1125_60;
-			break;
-		case TVStandard::FILM24p:
-			standardDecoded = LTC_TV_FILM_24;
-			break;
-		}
-
+		int flagsDecoded = Utils::toNative(flags);
+		LTC_TV_STANDARD standardDecoded = Utils::toNative(standard);
 		this->instance = ltc_encoder_create(sampleRate, fps, standardDecoded, flagsDecoded);
 	}
 
@@ -165,9 +174,52 @@ namespace LTCSharp
 
 	//----------
 	Frame ^ Encoder::getFrame() {
-		//Warning : this will be frame without the extended information
+		//Warning : this will be frame without the extended informations
 		Frame^ frame = gcnew Frame();
-		ltc_encoder_get_frame(this->instance, frame->getInstance()->ltc);
+		ltc_encoder_get_frame(this->instance, & frame->getInstance()->ltc);
 		return frame;
+	}
+
+	//----------
+	void Encoder::incrementFrame() {
+		ltc_encoder_inc_timecode(this->instance);
+	}
+
+	//----------
+	void Encoder::decrementFrame() {
+		ltc_encoder_dec_timecode(this->instance);
+	}
+
+	//----------
+	int Encoder::getBuffer(array<Byte>^ buffer, int offset) {
+		pin_ptr<unsigned char> pinned = &buffer[0];
+		unsigned char* pointer = pinned;
+		return ltc_encoder_get_buffer(this->instance, pointer + offset);
+	}
+
+	//----------
+	IntPtr Encoder::getBufferPointer() {
+		return (IntPtr) (void*) ltc_encoder_get_bufptr(this->instance, 0, 0);
+	}
+
+	//----------
+	void Encoder::flushBuffer() {
+		return ltc_encoder_buffer_flush(this->instance);
+	}
+
+	//----------
+	void Encoder::setBufferSize(double sampleRate, double fps) {
+		if (ltc_encoder_set_bufsize(this->instance, sampleRate, fps) == -1)
+			throw gcnew System::Exception("LTC encoder buffer allocation failed");
+	}
+
+	//----------
+	void Encoder::setVolume(double deciBelFullScale) {
+		ltc_encoder_set_volume(this->instance, deciBelFullScale);
+	}
+
+	//----------
+	void Encoder::encodeFrame() {
+		ltc_encoder_encode_frame(this->instance);
 	}
 }

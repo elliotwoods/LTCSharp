@@ -23,6 +23,16 @@
    If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _MSC_VER
+	#include <limits>
+	#define INFINITY std::numeric_limits<double>::max();
+	#ifndef rint
+		float rint(float input) {
+			return floor(input + 0.5f);
+		}
+	#endif
+#endif
+
 /** turn a numeric literal into a hex constant
  *  (avoids problems with leading zeroes)
  *  8-bit constants max value 0x11111111, always fits in unsigned long
