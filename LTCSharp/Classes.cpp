@@ -58,7 +58,9 @@ namespace LTCSharp
 		std::stringstream output;
 		output << this->getInstance()->timezone << " ";
 		output << this->Years << "-" << this->Months << "-" << this->Days << " ";
-		output << this->Hours << ":" << this->Minutes << ":" << this->Seconds;
+		output << this->Hours << ":" << this->Minutes << ":" << this->Seconds << "/";
+		output << this->Frame;
+
 		return gcnew String(output.str().c_str());
 	}
 	

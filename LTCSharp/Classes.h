@@ -36,6 +36,7 @@ namespace LTCSharp {
 
 		SMPTETimecode * getInstance() { return this->instance; };
 		
+		property String^ TimeZone { String^ get() { return gcnew String(this->getInstance()->timezone); } }
 		property int Years { int get() { return this->getInstance()->years; } }
 		property int Months { int get() { return this->getInstance()->months; } }
 		property int Days { int get() { return this->getInstance()->days; } }

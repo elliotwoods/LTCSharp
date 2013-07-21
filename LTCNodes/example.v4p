@@ -1,0 +1,29 @@
+<!DOCTYPE PATCH  SYSTEM "http://vvvv.org/versions/vvvv45alpha30.1.dtd" >
+   <PATCH nodename="C:\dev\LTCSharp\LTCNodes\example.v4p" systemname="example" filename="C:\dev\LTCSharp\LTCNodes\example.v4p">
+   <BOUNDS type="Window" left="9900" top="6000" width="9000" height="6000">
+   </BOUNDS>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="1" systemname="IOBox (String)">
+   <BOUNDS type="Box" left="6360" top="2100" width="1410" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="6360" top="2100" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Default" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="File Mask" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Maximum Characters" slicecount="1" values="-1">
+   </PIN>
+   <PIN pinname="Input String" visible="1">
+   </PIN>
+   <PIN pinname="Descriptive Name" slicecount="1" values="Status">
+   </PIN>
+   </NODE>
+   <NODE systemname="Decoder (Timecode LTC)" filename="bin\Debug\LTCNodes.dll" nodename="Decoder (Timecode LTC)" componentmode="Hidden" id="2">
+   <BOUNDS type="Node" left="2100" top="1215" width="4320" height="270">
+   </BOUNDS>
+   <PIN pinname="Status" visible="1">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="2" srcpinname="Status" dstnodeid="1" dstpinname="Input String">
+   </LINK>
+   </PATCH>

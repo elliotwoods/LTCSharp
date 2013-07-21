@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
 namespace ExampleDecode
@@ -21,28 +22,33 @@ namespace ExampleDecode
 			//FileLoadExample();
 		}
 
-		static void waveIn_DataAvailable(object sender, WaveInEventArgs e)
+		static unsafe void waveIn_DataAvailable(object sender, WaveInEventArgs e)
 		{
 			lock (FDecoder)
 			{
-				FDecoder.WriteAsU16(e.Buffer, e.BytesRecorded, 0);
+				byte[] downSampled = new byte[e.BytesRecorded / 2];
+				for (int i = 0; i < e.BytesRecorded / 2; i++)
+				{
+					downSampled[i] = (byte)(((int)e.Buffer[i * 2] + (int)e.Buffer[i * 2 + 1]) / 2);
+				}
+
+				FDecoder.Write(downSampled, e.BytesRecorded / 2, 0);
 			}
 		}
 
 		static void WaveInExample()
 		{
-			FDecoder = new LTCSharp.Decoder(48000, 25, 32);
+			var waveIn = new WasapiCapture();
+			waveIn.WaveFormat = new WaveFormat(44100, 8, 2);
 
-			var waveIn = new WaveInEvent();
 			Console.WriteLine("Device format: " + waveIn.WaveFormat.ToString());
-
 			FDecoder = new LTCSharp.Decoder(waveIn.WaveFormat.SampleRate, 25, 32);
 			waveIn.DataAvailable += waveIn_DataAvailable;
 			waveIn.StartRecording();
 
 			Stopwatch timer = new Stopwatch();
 			timer.Start();
-			while (timer.Elapsed < new TimeSpan(0, 0, 20))
+			while (true) //timer.Elapsed < new TimeSpan(0, 0, 60))
 			{
 				lock (FDecoder)
 				{
